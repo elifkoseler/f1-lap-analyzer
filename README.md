@@ -19,6 +19,8 @@ A full-stack application that analyzes Formula 1 lap times and predicts optimal 
 | API | https://f1-api-x7di.onrender.com |
 | ML Service | https://f1-ml-service-zsno.onrender.com |
 
+> ⚠️ **Note:** Demo is hosted on free tier services. Initial load may take ~30-50 seconds due to cold start. In production, this would be deployed on always-on infrastructure.
+
 ---
 
 ## ✨ Features
