@@ -9,15 +9,27 @@ A full-stack application that analyzes Formula 1 lap times and predicts optimal 
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?style=for-the-badge&logo=scikit-learn&logoColor=white)
 ![OpenF1 API](https://img.shields.io/badge/OpenF1_API-E10600?style=for-the-badge&logo=f1&logoColor=white)
 
+## 🌐 Live Demo
+
+**[Try it live!](https://f1-lap-analyzer.vercel.app/)**
+
+| Service | URL |
+|---------|-----|
+| Frontend | https://f1-lap-analyzer.vercel.app/ |
+| API | https://f1-api-x7di.onrender.com |
+| ML Service | https://f1-ml-service-zsno.onrender.com |
+
+---
+
 ## ✨ Features
 
-- **Real-time F1 Data** — Live lap times and driver data from the OpenF1 API
-- **Session Analysis** — Complete driver standings with fastest laps and gaps
-- **Lap Time Comparisons** — Gap calculations and performance metrics
+- **User-Friendly Race Selection** — Cascading Year → Race → Session dropdowns
+- **Driver Standings** — Complete standings with clickable driver names (Google search)
 - **ML-Powered Pit Stop Prediction** — Optimal pit window recommendations using machine learning
-- **Tire Degradation Analysis** — Track how lap times degrade over a stint
-- **User-Friendly Interface** — Easy year/race/session selection with cascading dropdowns
 - **Interactive Tooltips** — Hover explanations for all metrics and predictions
+- **Tabbed Interface** — Session Analysis, Pit Stop Predictor, Driver Comparison (coming soon)
+- **Real-time F1 Data** — Live lap times and driver data from the OpenF1 API
+- **Responsive Dark Theme** — F1-inspired styling that works on all devices
 
 ## 🛠️ Tech Stack
 
