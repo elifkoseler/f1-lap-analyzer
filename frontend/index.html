@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Lap Analyzer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0d0d0d;
+            --bg-primary: #1a1a2e;
+            --bg-card: #16213e;
+            --bg-card-hover: #1f2b47;
+            --f1-red: #e10600;
+            --f1-red-dark: #b30500;
+            --f1-red-glow: rgba(225, 6, 0, 0.4);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --text-muted: #666666;
+            --accent-green: #00ff88;
+            --accent-gold: #ffd700;
+            --accent-orange: #ff9500;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-light: rgba(255, 255, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Titillium Web', Arial, sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        .app-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 0 30px;
+            background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-dark) 100%);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--f1-red) 0%, #ff4444 50%, var(--f1-red) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: 400;
+        }
+
+        /* Session Controls */
+        .session-controls {
+            background: var(--bg-primary);
+            padding: 28px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .session-selectors {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 0;
+        }
+
+        .selector-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+
+        .selector-group label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .select-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        select {
+            background: var(--bg-card);
+            border: 2px solid var(--border-light);
+            border-radius: 8px;
+            padding: 12px 40px 12px 16px;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-family: 'Titillium Web', sans-serif;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            min-width: 200px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            position: absolute;
+            right: 14px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--f1-red);
+            box-shadow: 0 0 20px var(--f1-red-glow);
+        }
+
+        select:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        select option {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 10px;
+        }
+
+        .select-spinner {
+            position: absolute;
+            right: 36px;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border-light);
+            border-top-color: var(--f1-red);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .select-wrapper.loading .select-spinner {
+            display: block;
+        }
+
+        .select-wrapper.loading::after {
+            display: none;
+        }
+
+        #yearSelect {
+            min-width: 120px;
+        }
+
+        #raceSelect {
+            min-width: 280px;
+        }
+
+        #sessionSelect {
+            min-width: 180px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--f1-red) 0%, var(--f1-red-dark) 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 28px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Titillium Web', sans-serif;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            height: 46px;
+            align-self: flex-end;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--f1-red-glow);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #333;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn:disabled::before {
+            display: none;
+        }
+
+        /* Selected Session Info */
+        .selected-info {
+            text-align: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-subtle);
+            display: none;
+        }
+
+        .selected-info.visible {
+            display: block;
+        }
+
+        .selected-info-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .selected-info-text strong {
+            color: var(--accent-gold);
+        }
+
+        /* Tab Navigation */
+        .tab-nav {
+            background: var(--bg-primary);
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            border-bottom: 2px solid var(--border-subtle);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 18px 32px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Titillium Web', sans-serif;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-btn::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--f1-red);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .tab-btn.active {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active::after {
+            transform: scaleX(1);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            padding: 32px 0;
+            min-height: 400px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results Card */
+        .results-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
+            overflow: hidden;
+        }
+
+        .results-header {
+            background: linear-gradient(90deg, rgba(225, 6, 0, 0.15) 0%, rgba(225, 6, 0, 0.05) 100%);
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .results-header h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            color: var(--f1-red);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .results-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-left: auto;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        th {
+            padding: 14px 20px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        th:first-child {
+            text-align: center;
+            width: 70px;
+        }
+
+        td {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            transition: background 0.2s ease;
+        }
+
+        td:first-child {
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        tr:hover td {
+            background: rgba(225, 6, 0, 0.05);
+        }
+
+        .position-1 td:first-child { color: var(--accent-gold); }
+        .position-2 td:first-child { color: #c0c0c0; }
+        .position-3 td:first-child { color: #cd7f32; }
+
+        .driver-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .driver-name-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .driver-name-link::after {
+            content: '↗';
+            font-size: 0.75rem;
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: all 0.2s ease;
+            color: var(--f1-red);
+        }
+
+        .driver-name-link:hover {
+            color: var(--f1-red);
+            text-decoration: underline;
+        }
+
+        .driver-name-link:hover::after {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .team-name {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .lap-time {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent-green);
+            font-weight: 500;
+        }
+
+        .gap {
+            color: #ff6b6b;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+        }
+
+        .gap-leader {
+            color: var(--accent-green);
+        }
+
+        .total-laps {
+            color: var(--text-secondary);
+        }
+
+        /* Status Messages */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-light);
+            border-top-color: var(--f1-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 12px;
+            vertical-align: middle;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px 20px;
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 8px;
+            margin: 20px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+        }
+
+        /* Pit Stop Predictor */
+        .predictor-controls {
+            display: flex;
+            align-items: flex-end;
+            gap: 16px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .driver-info-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+            align-self: flex-end;
+            margin-bottom: 7px;
+        }
+
+        .driver-info-link:hover {
+            background: var(--f1-red);
+            border-color: var(--f1-red);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .driver-info-link.hidden {
+            display: none;
+        }
+
+        .predictor-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
+            overflow: hidden;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .predictor-card-header {
+            background: linear-gradient(135deg, var(--f1-red) 0%, #cc0500 100%);
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .predictor-card-header h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .predictor-card-header .driver-info {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .predictor-card-body {
+            padding: 28px;
+        }
+
+        .pit-lap-display {
+            text-align: center;
+            margin-bottom: 28px;
+            padding: 28px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .pit-lap-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 12px;
+        }
+
+        .pit-lap-number {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: var(--accent-green);
+            text-shadow: 0 0 40px rgba(0, 255, 136, 0.5);
+            animation: pulseGlow 2s ease-in-out infinite;
+            line-height: 1;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { text-shadow: 0 0 40px rgba(0, 255, 136, 0.5); }
+            50% { text-shadow: 0 0 60px rgba(0, 255, 136, 0.8); }
+        }
+
+        .pit-window {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-top: 12px;
+        }
+
+        .pit-window span {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .prediction-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 10px;
+            padding: 18px;
+            text-align: center;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* Tooltip Styles */
+        .tooltip-trigger {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-style: normal;
+            transition: all 0.2s ease;
+        }
+
+        .tooltip-trigger:hover .tooltip-icon {
+            background: var(--f1-red);
+            color: var(--text-primary);
+        }
+
+        .tooltip-trigger::before,
+        .tooltip-trigger::after {
+            position: absolute;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        /* Tooltip text box */
+        .tooltip-trigger::before {
+            content: attr(data-tooltip);
+            bottom: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%) translateY(5px);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+            line-height: 1.4;
+            white-space: normal;
+            width: max-content;
+            max-width: 200px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-light);
+        }
+
+        /* Tooltip arrow */
+        .tooltip-trigger::after {
+            content: '';
+            bottom: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%) translateY(5px);
+            border: 6px solid transparent;
+            border-top-color: var(--bg-card);
+        }
+
+        .tooltip-trigger:hover::before,
+        .tooltip-trigger:hover::after {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Tooltip below variant */
+        .tooltip-below::before {
+            bottom: auto;
+            top: calc(100% + 10px);
+            transform: translateX(-50%) translateY(-5px);
+        }
+
+        .tooltip-below::after {
+            bottom: auto;
+            top: calc(100% + 4px);
+            transform: translateX(-50%) translateY(-5px);
+            border-top-color: transparent;
+            border-bottom-color: var(--bg-card);
+        }
+
+        .tooltip-below:hover::before,
+        .tooltip-below:hover::after {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Large display tooltips */
+        .pit-lap-tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .pit-lap-tooltip::before,
+        .pit-lap-tooltip::after {
+            position: absolute;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s ease;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .pit-lap-tooltip::before {
+            content: attr(data-tooltip);
+            top: calc(100% + 10px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-5px);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: 0;
+            line-height: 1.4;
+            white-space: normal;
+            width: max-content;
+            max-width: 220px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-light);
+        }
+
+        .pit-lap-tooltip::after {
+            content: '';
+            top: calc(100% + 4px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-5px);
+            border: 6px solid transparent;
+            border-bottom-color: var(--bg-card);
+        }
+
+        .pit-lap-tooltip:hover::before,
+        .pit-lap-tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .confidence-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 1s ease-out;
+        }
+
+        .confidence-high { background: linear-gradient(90deg, var(--accent-green), #00cc6a); }
+        .confidence-medium { background: linear-gradient(90deg, var(--accent-gold), var(--accent-orange)); }
+        .confidence-low { background: linear-gradient(90deg, #ff6b6b, var(--f1-red)); }
+
+        .degradation-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .degradation-arrow { font-size: 1rem; }
+        .degradation-high { color: #ff6b6b; }
+        .degradation-medium { color: var(--accent-gold); }
+        .degradation-low { color: var(--accent-green); }
+
+        .recommendation-box {
+            background: rgba(255, 215, 0, 0.08);
+            border-left: 4px solid var(--accent-gold);
+            border-radius: 0 10px 10px 0;
+            padding: 18px 22px;
+        }
+
+        .recommendation-label {
+            font-size: 0.8rem;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .recommendation-text {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Coming Soon Tab */
+        .coming-soon {
+            text-align: center;
+            padding: 80px 40px;
+        }
+
+        .coming-soon-icon {
+            font-size: 4rem;
+            margin-bottom: 24px;
+            opacity: 0.6;
+        }
+
+        .coming-soon h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .coming-soon p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 500px;
+            margin: 0 auto 32px;
+            line-height: 1.6;
+        }
+
+        .feature-list {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 20px 28px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            border-color: var(--f1-red);
+            transform: translateY(-3px);
+        }
+
+        .feature-item span {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .prediction-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .session-selectors {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .selector-group {
+                width: 100%;
+            }
+
+            select {
+                width: 100%;
+                min-width: unset !important;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 2rem;
+                letter-spacing: 4px;
+            }
+
+            .tab-btn {
+                padding: 14px 20px;
+                font-size: 0.8rem;
+                letter-spacing: 1px;
+            }
+
+            th, td {
+                padding: 12px 14px;
+                font-size: 0.85rem;
+            }
+
+            .predictor-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .pit-lap-number {
+                font-size: 3.5rem;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tab-nav {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1 1 auto;
+                padding: 12px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="app-container">
+            <h1 class="logo">F1 Lap Analyzer</h1>
+            <p class="tagline">Real-Time Performance Analysis</p>
+        </div>
+    </header>
+
+    <div class="session-controls">
+        <div class="session-selectors">
+            <div class="selector-group">
+                <label for="yearSelect">Year</label>
+                <div class="select-wrapper" id="yearWrapper">
+                    <select id="yearSelect" onchange="onYearChange()">
+                        <option value="">Select Year</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                    </select>
+                    <div class="select-spinner"></div>
+                </div>
+            </div>
+
+            <div class="selector-group">
+                <label for="raceSelect">Race</label>
+                <div class="select-wrapper" id="raceWrapper">
+                    <select id="raceSelect" onchange="onRaceChange()" disabled>
+                        <option value="">Select Year First</option>
+                    </select>
+                    <div class="select-spinner"></div>
+                </div>
+            </div>
+
+            <div class="selector-group">
+                <label for="sessionSelect">Session</label>
+                <div class="select-wrapper" id="sessionWrapper">
+                    <select id="sessionSelect" onchange="onSessionChange()" disabled>
+                        <option value="">Select Race First</option>
+                    </select>
+                    <div class="select-spinner"></div>
+                </div>
+            </div>
+
+            <button class="btn" id="analyzeBtn" onclick="analyzeSession()" disabled>Analyze</button>
+        </div>
+
+        <div class="selected-info" id="selectedInfo">
+            <div class="selected-info-text">
+                Selected: <strong id="selectedSessionText">-</strong>
+            </div>
+        </div>
+    </div>
+
+    <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="analysis" onclick="switchTab('analysis')">
+            Session Analysis
+        </button>
+        <button class="tab-btn" data-tab="pitstop" onclick="switchTab('pitstop')">
+            Pit Stop Predictor
+        </button>
+        <button class="tab-btn" data-tab="comparison" onclick="switchTab('comparison')">
+            Driver Comparison
+        </button>
+    </nav>
+
+    <main class="app-container">
+        <div class="tab-content">
+            <!-- Session Analysis Tab -->
+            <div class="tab-pane active" id="tab-analysis">
+                <div class="results-card" id="results">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏎️</div>
+                        <div class="empty-state-text">Select a Year, Race, and Session, then click "Analyze" to view standings</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pit Stop Predictor Tab -->
+            <div class="tab-pane" id="tab-pitstop">
+                <div class="predictor-controls">
+                    <div class="selector-group">
+                        <label for="driverSelect">Select Driver</label>
+                        <div class="select-wrapper">
+                            <select id="driverSelect" disabled>
+                                <option value="">-- Analyze a session first --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <a href="#" id="driverInfoLink" class="driver-info-link hidden" target="_blank" title="Search driver info">↗</a>
+                    <button class="btn" id="predictBtn" onclick="predictPitStop()" disabled>Predict Pit Stop</button>
+                </div>
+
+                <div id="predictionResults">
+                    <div class="results-card">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔮</div>
+                            <div class="empty-state-text">Select a driver to analyze tire degradation and predict optimal pit stop window</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Driver Comparison Tab -->
+            <div class="tab-pane" id="tab-comparison">
+                <div class="coming-soon">
+                    <div class="coming-soon-icon">📊</div>
+                    <h3>Coming Soon</h3>
+                    <p>Compare performance metrics between drivers, analyze lap-by-lap data, and discover racing insights.</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <span>⚡</span>
+                            <span>Lap-by-Lap Comparison</span>
+                        </div>
+                        <div class="feature-item">
+                            <span>📈</span>
+                            <span>Sector Analysis</span>
+                        </div>
+                        <div class="feature-item">
+                            <span>🎯</span>
+                            <span>Performance Delta</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const API_BASE = 'http://localhost:5109';
+        const OPENF1_BASE = 'https://api.openf1.org/v1';
+        
+        let currentSessionKey = null;
+        let currentSessionName = null;
+        let currentRaceName = null;
+        let currentDrivers = [];
+        let meetingsCache = {};
+        let sessionsCache = {};
+
+        // Tab Navigation
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.tab === tabId);
+            });
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.toggle('active', pane.id === `tab-${tabId}`);
+            });
+        }
+
+        // Year Selection
+        async function onYearChange() {
+            const year = document.getElementById('yearSelect').value;
+            const raceSelect = document.getElementById('raceSelect');
+            const sessionSelect = document.getElementById('sessionSelect');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const raceWrapper = document.getElementById('raceWrapper');
+
+            // Reset dependent dropdowns
+            raceSelect.innerHTML = '<option value="">Loading races...</option>';
+            raceSelect.disabled = true;
+            sessionSelect.innerHTML = '<option value="">Select Race First</option>';
+            sessionSelect.disabled = true;
+            analyzeBtn.disabled = true;
+            currentSessionKey = null;
+            updateSelectedInfo();
+
+            if (!year) {
+                raceSelect.innerHTML = '<option value="">Select Year First</option>';
+                return;
+            }
+
+            // Check cache
+            if (meetingsCache[year]) {
+                populateRaces(meetingsCache[year]);
+                return;
+            }
+
+            // Fetch meetings
+            raceWrapper.classList.add('loading');
+            try {
+                const response = await fetch(`${OPENF1_BASE}/meetings?year=${year}`);
+                if (!response.ok) throw new Error('Failed to fetch races');
+                const meetings = await response.json();
+                meetingsCache[year] = meetings;
+                populateRaces(meetings);
+            } catch (error) {
+                console.error('Error fetching races:', error);
+                raceSelect.innerHTML = '<option value="">Error loading races</option>';
+            } finally {
+                raceWrapper.classList.remove('loading');
+            }
+        }
+
+        function populateRaces(meetings) {
+            const raceSelect = document.getElementById('raceSelect');
+            
+            if (!meetings || meetings.length === 0) {
+                raceSelect.innerHTML = '<option value="">No races found</option>';
+                return;
+            }
+
+            // Sort by date (most recent first for current year, chronological otherwise)
+            const sortedMeetings = [...meetings].sort((a, b) => 
+                new Date(b.date_start) - new Date(a.date_start)
+            );
+
+            raceSelect.innerHTML = '<option value="">Select Race</option>';
+            sortedMeetings.forEach(meeting => {
+                const option = document.createElement('option');
+                option.value = meeting.meeting_key;
+                option.textContent = meeting.meeting_name;
+                option.dataset.meetingName = meeting.meeting_name;
+                raceSelect.appendChild(option);
+            });
+
+            raceSelect.disabled = false;
+        }
+
+        // Race Selection
+        async function onRaceChange() {
+            const meetingKey = document.getElementById('raceSelect').value;
+            const raceSelect = document.getElementById('raceSelect');
+            const sessionSelect = document.getElementById('sessionSelect');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const sessionWrapper = document.getElementById('sessionWrapper');
+
+            // Get race name
+            const selectedOption = raceSelect.options[raceSelect.selectedIndex];
+            currentRaceName = selectedOption?.dataset?.meetingName || '';
+
+            // Reset session dropdown
+            sessionSelect.innerHTML = '<option value="">Loading sessions...</option>';
+            sessionSelect.disabled = true;
+            analyzeBtn.disabled = true;
+            currentSessionKey = null;
+            updateSelectedInfo();
+
+            if (!meetingKey) {
+                sessionSelect.innerHTML = '<option value="">Select Race First</option>';
+                return;
+            }
+
+            // Check cache
+            if (sessionsCache[meetingKey]) {
+                populateSessions(sessionsCache[meetingKey]);
+                return;
+            }
+
+            // Fetch sessions
+            sessionWrapper.classList.add('loading');
+            try {
+                const response = await fetch(`${OPENF1_BASE}/sessions?meeting_key=${meetingKey}`);
+                if (!response.ok) throw new Error('Failed to fetch sessions');
+                const sessions = await response.json();
+                sessionsCache[meetingKey] = sessions;
+                populateSessions(sessions);
+            } catch (error) {
+                console.error('Error fetching sessions:', error);
+                sessionSelect.innerHTML = '<option value="">Error loading sessions</option>';
+            } finally {
+                sessionWrapper.classList.remove('loading');
+            }
+        }
+
+        function populateSessions(sessions) {
+            const sessionSelect = document.getElementById('sessionSelect');
+            
+            if (!sessions || sessions.length === 0) {
+                sessionSelect.innerHTML = '<option value="">No sessions found</option>';
+                return;
+            }
+
+            // Sort sessions by date
+            const sortedSessions = [...sessions].sort((a, b) => 
+                new Date(a.date_start) - new Date(b.date_start)
+            );
+
+            sessionSelect.innerHTML = '<option value="">Select Session</option>';
+            sortedSessions.forEach(session => {
+                const option = document.createElement('option');
+                option.value = session.session_key;
+                option.textContent = session.session_name;
+                option.dataset.sessionName = session.session_name;
+                sessionSelect.appendChild(option);
+            });
+
+            sessionSelect.disabled = false;
+        }
+
+        // Session Selection
+        function onSessionChange() {
+            const sessionSelect = document.getElementById('sessionSelect');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const selectedOption = sessionSelect.options[sessionSelect.selectedIndex];
+
+            currentSessionKey = sessionSelect.value || null;
+            currentSessionName = selectedOption?.dataset?.sessionName || '';
+
+            analyzeBtn.disabled = !currentSessionKey;
+            updateSelectedInfo();
+        }
+
+        function updateSelectedInfo() {
+            const infoDiv = document.getElementById('selectedInfo');
+            const infoText = document.getElementById('selectedSessionText');
+
+            if (currentSessionKey && currentRaceName && currentSessionName) {
+                infoText.textContent = `${currentRaceName} — ${currentSessionName}`;
+                infoDiv.classList.add('visible');
+            } else {
+                infoDiv.classList.remove('visible');
+            }
+        }
+
+        function formatLapTime(seconds) {
+            if (seconds === null || seconds === undefined) return '-';
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            const wholeSecs = Math.floor(secs);
+            const ms = Math.round((secs - wholeSecs) * 1000);
+            return `${mins}:${wholeSecs.toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`;
+        }
+
+        function formatGap(gap) {
+            if (gap === null || gap === undefined) return '-';
+            if (gap === 0) return 'LEADER';
+            return `+${gap.toFixed(3)}s`;
+        }
+
+        async function analyzeSession() {
+            if (!currentSessionKey) return;
+
+            const resultsDiv = document.getElementById('results');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+
+            analyzeBtn.disabled = true;
+            resultsDiv.innerHTML = '<div class="loading">Loading session data</div>';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/analysis/session/${currentSessionKey}/summary`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                currentDrivers = data.drivers || [];
+                
+                renderResults(data);
+                populateDriverDropdown(currentDrivers);
+                
+                // Reset prediction results
+                document.getElementById('predictionResults').innerHTML = `
+                    <div class="results-card">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🔮</div>
+                            <div class="empty-state-text">Select a driver to analyze tire degradation and predict optimal pit stop window</div>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                resultsDiv.innerHTML = `<div class="error">Failed to load session data. Make sure the API is running at ${API_BASE}</div>`;
+            } finally {
+                analyzeBtn.disabled = false;
+            }
+        }
+
+        function renderResults(data) {
+            const resultsDiv = document.getElementById('results');
+
+            if (!data.drivers || data.drivers.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🏁</div>
+                        <div class="empty-state-text">No data found for this session</div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <div class="results-header">
+                    <h2>Driver Standings</h2>
+                    <span class="results-subtitle">${currentRaceName} — ${currentSessionName}</span>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+                            <th>Driver</th>
+                            <th>Team</th>
+                            <th>Fastest Lap</th>
+                            <th>Gap</th>
+                            <th>Laps</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.drivers.forEach((driver, index) => {
+                const position = index + 1;
+                const positionClass = position <= 3 ? `position-${position}` : '';
+                const gapClass = driver.gapToLeader === 0 ? 'gap-leader' : '';
+                const driverDisplayName = driver.driverName || `Driver #${driver.driverNumber}`;
+                const searchQuery = encodeURIComponent(`${driverDisplayName} F1 driver`);
+                const googleSearchUrl = `https://www.google.com/search?q=${searchQuery}`;
+
+                html += `
+                    <tr class="${positionClass}">
+                        <td>${position}</td>
+                        <td>
+                            <a href="${googleSearchUrl}" target="_blank" rel="noopener noreferrer" class="driver-name driver-name-link">${driverDisplayName}</a>
+                        </td>
+                        <td class="team-name">${driver.teamName || '-'}</td>
+                        <td class="lap-time">${formatLapTime(driver.fastestLap)}</td>
+                        <td class="gap ${gapClass}">${formatGap(driver.gapToLeader)}</td>
+                        <td class="total-laps">${driver.totalLaps}</td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            resultsDiv.innerHTML = html;
+        }
+
+        function populateDriverDropdown(drivers) {
+            const select = document.getElementById('driverSelect');
+            const predictBtn = document.getElementById('predictBtn');
+            const infoLink = document.getElementById('driverInfoLink');
+            
+            if (!drivers || drivers.length === 0) {
+                select.innerHTML = '<option value="">-- No drivers available --</option>';
+                select.disabled = true;
+                predictBtn.disabled = true;
+                infoLink.classList.add('hidden');
+                return;
+            }
+
+            select.innerHTML = '<option value="">-- Select a driver --</option>';
+            
+            drivers.forEach(driver => {
+                const option = document.createElement('option');
+                option.value = driver.driverNumber;
+                option.textContent = `#${driver.driverNumber} — ${driver.driverName || 'Unknown'} (${driver.teamName || 'Unknown Team'})`;
+                option.dataset.driverName = driver.driverName || 'Unknown';
+                select.appendChild(option);
+            });
+
+            select.disabled = false;
+            select.onchange = () => {
+                predictBtn.disabled = !select.value;
+                updateDriverInfoLink();
+            };
+            
+            // Reset info link
+            infoLink.classList.add('hidden');
+        }
+
+        function updateDriverInfoLink() {
+            const select = document.getElementById('driverSelect');
+            const infoLink = document.getElementById('driverInfoLink');
+            const selectedOption = select.options[select.selectedIndex];
+            
+            if (select.value && selectedOption?.dataset?.driverName) {
+                const driverName = selectedOption.dataset.driverName;
+                const searchQuery = encodeURIComponent(`${driverName} F1 driver`);
+                infoLink.href = `https://www.google.com/search?q=${searchQuery}`;
+                infoLink.title = `Search for ${driverName}`;
+                infoLink.classList.remove('hidden');
+            } else {
+                infoLink.classList.add('hidden');
+            }
+        }
+
+        async function predictPitStop() {
+            const driverNumber = document.getElementById('driverSelect').value;
+            const predictBtn = document.getElementById('predictBtn');
+            const resultsDiv = document.getElementById('predictionResults');
+
+            if (!driverNumber || !currentSessionKey) return;
+
+            predictBtn.disabled = true;
+            resultsDiv.innerHTML = '<div class="results-card"><div class="loading">Analyzing tire degradation</div></div>';
+
+            try {
+                const response = await fetch(
+                    `${API_BASE}/api/prediction/pitstop/session/${currentSessionKey}/driver/${driverNumber}`
+                );
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(errorText || `HTTP error! status: ${response.status}`);
+                }
+
+                const prediction = await response.json();
+                renderPrediction(prediction, driverNumber);
+            } catch (error) {
+                console.error('Error:', error);
+                resultsDiv.innerHTML = `
+                    <div class="results-card">
+                        <div class="error">
+                            Failed to get prediction. ${error.message}<br>
+                            <small style="opacity: 0.7;">Make sure the ML service is running at http://localhost:8000</small>
+                        </div>
+                    </div>
+                `;
+            } finally {
+                predictBtn.disabled = false;
+            }
+        }
+
+        function renderPrediction(prediction, driverNumber) {
+            const resultsDiv = document.getElementById('predictionResults');
+            const driver = currentDrivers.find(d => d.driverNumber == driverNumber);
+            const driverName = driver?.driverName || `Driver #${driverNumber}`;
+            const teamName = driver?.teamName || '';
+
+            // Handle both snake_case and camelCase field names
+            const optimalPitLap = prediction.optimal_pit_lap ?? prediction.optimalPitLap;
+            const windowStart = prediction.windowStart ?? prediction.window_start;
+            const windowEnd = prediction.windowEnd ?? prediction.window_end;
+            const confidenceValue = prediction.confidence;
+            const degradationRate = prediction.degradation_rate ?? prediction.degradationRate;
+            const tireCompound = prediction.tire_compound ?? prediction.tireCompound;
+            const lapsAnalyzed = prediction.laps_analyzed ?? prediction.lapsAnalyzed;
+            const recommendation = prediction.recommendation;
+
+            // Determine confidence level
+            const confidence = confidenceValue * 100;
+            let confidenceClass = 'confidence-low';
+            if (confidence >= 70) confidenceClass = 'confidence-high';
+            else if (confidence >= 40) confidenceClass = 'confidence-medium';
+
+            // Determine degradation level
+            const degradation = Math.abs(degradationRate);
+            let degradationClass = 'degradation-low';
+            let degradationArrow = '↗';
+            if (degradation >= 0.07) {
+                degradationClass = 'degradation-high';
+                degradationArrow = '⬆';
+            } else if (degradation >= 0.03) {
+                degradationClass = 'degradation-medium';
+                degradationArrow = '↗';
+            }
+
+            const html = `
+                <div class="predictor-card">
+                    <div class="predictor-card-header">
+                        <h3>Pit Stop Strategy</h3>
+                        <div class="driver-info">${driverName} • ${teamName}</div>
+                    </div>
+                    <div class="predictor-card-body">
+                        <div class="pit-lap-display">
+                            <div class="pit-lap-label pit-lap-tooltip" data-tooltip="The recommended lap to pit for best race strategy">
+                                Optimal Pit Lap <span class="tooltip-icon">ℹ</span>
+                            </div>
+                            <div class="pit-lap-number">${optimalPitLap}</div>
+                            <div class="pit-window pit-lap-tooltip" data-tooltip="The safe range of laps to pit without losing significant time">
+                                Pit Window: <span>Lap ${windowStart} – ${windowEnd}</span> <span class="tooltip-icon">ℹ</span>
+                            </div>
+                        </div>
+
+                        <div class="prediction-stats">
+                            <div class="stat-card">
+                                <div class="stat-label tooltip-trigger" data-tooltip="How confident the ML model is about this prediction based on data consistency">
+                                    Confidence <span class="tooltip-icon">ℹ</span>
+                                </div>
+                                <div class="stat-value">${confidence.toFixed(0)}%</div>
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill ${confidenceClass}" style="width: ${confidence}%"></div>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label tooltip-trigger" data-tooltip="How much lap time is lost per lap due to tire wear (seconds/lap). Negative means tires are improving.">
+                                    Degradation <span class="tooltip-icon">ℹ</span>
+                                </div>
+                                <div class="stat-value degradation-indicator">
+                                    <span class="degradation-arrow ${degradationClass}">${degradationArrow}</span>
+                                    ${degradationRate.toFixed(3)}s
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label tooltip-trigger" data-tooltip="The tire type used for this stint (Soft, Medium, Hard)">
+                                    Tire <span class="tooltip-icon">ℹ</span>
+                                </div>
+                                <div class="stat-value">${tireCompound || 'MEDIUM'}</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label tooltip-trigger" data-tooltip="Number of laps used to train the prediction model">
+                                    Laps Used <span class="tooltip-icon">ℹ</span>
+                                </div>
+                                <div class="stat-value">${lapsAnalyzed}</div>
+                            </div>
+                        </div>
+
+                        <div class="recommendation-box">
+                            <div class="recommendation-label">💡 Strategy Recommendation</div>
+                            <div class="recommendation-text">${recommendation}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            resultsDiv.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

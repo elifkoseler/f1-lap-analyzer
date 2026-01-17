@@ -1,0 +1,6 @@
+@F1LapAnalyzer.Api_HostAddress = http://localhost:5109
+
+GET {{F1LapAnalyzer.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

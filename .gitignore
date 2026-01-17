@@ -1,0 +1,28 @@
+# Python
+ml-service/venv/
+__pycache__/
+*.pyc
+.env
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
