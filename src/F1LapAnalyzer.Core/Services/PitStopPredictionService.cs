@@ -6,11 +6,12 @@ namespace F1LapAnalyzer.Core.Services;
 public class PitStopPredictionService : IPitStopPredictionService
 {
     private readonly HttpClient _httpClient;
-    private const string MlServiceUrl = "http://localhost:8000/predict/pitstop";
+    private readonly string _mlServiceUrl;
 
-    public PitStopPredictionService(HttpClient httpClient)
+    public PitStopPredictionService(HttpClient httpClient, string mlServiceUrl)
     {
         _httpClient = httpClient;
+        _mlServiceUrl = mlServiceUrl.TrimEnd('/') + "/predict/pitstop";
     }
 
     public async Task<PitStopPrediction> PredictPitStopAsync(List<LapTime> laps, string tireCompound = "MEDIUM")
@@ -55,7 +56,7 @@ public class PitStopPredictionService : IPitStopPredictionService
         };
 
         // Call ML service
-        var response = await _httpClient.PostAsJsonAsync(MlServiceUrl, request);
+        var response = await _httpClient.PostAsJsonAsync(_mlServiceUrl, request);
         response.EnsureSuccessStatusCode();
 
         var prediction = await response.Content.ReadFromJsonAsync<PitStopPrediction>();
