@@ -24,10 +24,8 @@ builder.Services.AddHttpClient<IOpenF1Service, OpenF1Service>();
 // Register LapAnalysisService
 builder.Services.AddScoped<ILapAnalysisService, LapAnalysisService>();
 
-// Register PitStopPredictionService with HttpClient and configuration
-var mlServiceUrl = builder.Configuration["ML_SERVICE_URL"] ?? "http://localhost:8000";
-builder.Services.AddHttpClient<IPitStopPredictionService, PitStopPredictionService>(
-    (serviceProvider, httpClient) => new PitStopPredictionService(httpClient, mlServiceUrl));
+// Register PitStopPredictionService with HttpClient
+builder.Services.AddHttpClient<IPitStopPredictionService, PitStopPredictionService>();
 
 var app = builder.Build();
 
