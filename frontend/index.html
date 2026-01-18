@@ -1460,11 +1460,11 @@
             return 'Waking up ML service... This may take up to 50 seconds on first load';
         }
 
-        // Initialize year dropdown with years from 2016 to current year
+        // Initialize year dropdown with years that have OpenF1 API data (2023+)
         function initYearDropdown() {
             const yearSelect = document.getElementById('yearSelect');
             const currentYear = new Date().getFullYear();
-            const startYear = 2016;
+            const startYear = 2023; // OpenF1 API only has data from 2023 onwards
             
             // Add years in descending order (most recent first)
             for (let year = currentYear; year >= startYear; year--) {
