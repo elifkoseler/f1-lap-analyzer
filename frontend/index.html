@@ -914,7 +914,7 @@
             color: var(--accent-gold);
             text-transform: uppercase;
 
-        /* Strategy Impact Styles */
+        /* Strategy Impact Styles - Clean Grid Design */
         .strategy-impact-card {
             margin-top: 20px;
             background: var(--bg-card);
@@ -925,180 +925,181 @@
         }
 
         .strategy-impact-header {
-            background: linear-gradient(135deg, #1e90ff 0%, #0066cc 100%);
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-subtle);
         }
 
         .strategy-impact-header h4 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.95rem;
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            margin: 0;
+            text-align: center;
         }
 
-        .strategy-impact-body {
-            padding: 24px;
-        }
-
-        .position-display {
+        /* Position Hero Section */
+        .position-hero {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 40px;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
+            gap: 24px;
+            padding: 28px 20px;
         }
 
-        .position-box {
+        .position-block {
             text-align: center;
-            padding: 20px 30px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            min-width: 140px;
-        }
-
-        .position-label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
         }
 
         .position-number {
             font-family: 'Orbitron', sans-serif;
-            font-size: 3rem;
+            font-size: 3.2rem;
             font-weight: 900;
+            color: var(--text-primary);
             line-height: 1;
         }
 
-        .position-number::before {
-            content: 'P';
-            font-size: 1.5rem;
-            opacity: 0.7;
+        .position-number span {
+            font-size: 1.6rem;
+            opacity: 0.5;
+            margin-right: 2px;
         }
 
-        .position-arrow {
-            font-size: 2.5rem;
-            color: var(--text-muted);
-        }
-
-        .position-change-box {
-            text-align: center;
-            padding: 16px 24px;
-            border-radius: 10px;
-            min-width: 100px;
-        }
-
-        .position-change-box.gained {
-            background: rgba(0, 255, 136, 0.15);
-            border: 1px solid var(--accent-green);
-        }
-
-        .position-change-box.lost {
-            background: rgba(255, 107, 107, 0.15);
-            border: 1px solid #ff6b6b;
-        }
-
-        .position-change-box.neutral {
-            background: rgba(255, 215, 0, 0.15);
-            border: 1px solid var(--accent-gold);
-        }
-
-        .position-change-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .position-change-value.gained { color: var(--accent-green); }
-        .position-change-value.lost { color: #ff6b6b; }
-        .position-change-value.neutral { color: var(--accent-gold); }
-
-        .nearby-drivers {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-top: 20px;
-        }
-
-        .nearby-section {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 10px;
-            padding: 16px;
-        }
-
-        .nearby-section-title {
-            font-size: 0.75rem;
+        .position-label {
+            font-size: 0.65rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            margin-top: 6px;
         }
 
-        .nearby-section-title.behind { color: #ff6b6b; }
-        .nearby-section-title.ahead { color: var(--accent-green); }
-
-        .nearby-driver {
+        .position-arrow-container {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            gap: 12px;
+        }
+
+        .position-arrow {
+            font-size: 1.6rem;
+            color: var(--text-muted);
+        }
+
+        .position-change-badge {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 6px;
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+
+        .position-change-badge.gained {
+            background: #00ff88;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .position-change-badge.lost {
+            background: #ff4444;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(255, 68, 68, 0.3);
+        }
+
+        .position-change-badge.neutral {
+            background: var(--accent-gold);
+            color: #000;
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+
+        /* Time Stats Row */
+        .time-stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            border-top: 1px solid var(--border-subtle);
             border-bottom: 1px solid var(--border-subtle);
         }
 
-        .nearby-driver:last-child {
-            border-bottom: none;
+        .time-stat {
+            text-align: center;
+            padding: 14px 10px;
+            border-right: 1px solid var(--border-subtle);
+        }
+
+        .time-stat:last-child {
+            border-right: none;
+        }
+
+        .time-stat-label {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .time-stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .time-stat-value.negative { color: #ff4444; }
+        .time-stat-value.positive { color: #00ff88; }
+
+        /* Nearby Drivers Row */
+        .nearby-row {
+            padding: 14px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .nearby-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nearby-icon {
+            font-size: 0.6rem;
+        }
+
+        .nearby-icon.behind { color: #ff4444; }
+        .nearby-icon.ahead { color: #00ff88; }
+
+        .nearby-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            min-width: 50px;
+        }
+
+        .nearby-drivers-list {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
         }
 
         .nearby-driver-name {
-            font-weight: 600;
-            font-size: 0.9rem;
+            color: var(--text-primary);
         }
 
         .nearby-driver-gap {
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.85rem;
-        }
-
-        .nearby-driver-gap.behind { color: #ff6b6b; }
-        .nearby-driver-gap.ahead { color: var(--accent-green); }
-
-        .time-breakdown {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-subtle);
-            flex-wrap: wrap;
-        }
-
-        .time-item {
-            text-align: center;
-        }
-
-        .time-item-label {
             font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
+        .nearby-empty {
             color: var(--text-muted);
-            text-transform: uppercase;
-            margin-bottom: 4px;
+            font-style: italic;
+            font-size: 0.75rem;
         }
-
-        .time-item-value {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1rem;
-        }
-
-        .time-item-value.negative { color: #ff6b6b; }
-        .time-item-value.positive { color: var(--accent-green); }
 
         .strategy-loading {
             text-align: center;
@@ -1107,16 +1108,40 @@
         }
 
         @media (max-width: 600px) {
-            .position-display {
-                gap: 20px;
+            .position-hero {
+                flex-wrap: wrap;
+                gap: 16px;
+                padding: 20px;
             }
             
             .position-number {
                 font-size: 2.5rem;
             }
             
-            .nearby-drivers {
+            .position-number span {
+                font-size: 1.2rem;
+            }
+
+            .time-stats-row {
                 grid-template-columns: 1fr;
+            }
+
+            .time-stat {
+                border-right: none;
+                border-bottom: 1px solid var(--border-subtle);
+                padding: 10px;
+            }
+
+            .time-stat:last-child {
+                border-bottom: none;
+            }
+
+            .nearby-row {
+                padding: 12px 16px;
+            }
+
+            .nearby-line {
+                flex-wrap: wrap;
             }
         }
             letter-spacing: 1px;
@@ -1977,112 +2002,89 @@
             const currentPosition = impact.current_position ?? impact.currentPosition;
             const projectedPosition = impact.projected_position ?? impact.projectedPosition;
             const positionChange = impact.position_change ?? impact.positionChange;
-            const timeLostInPit = impact.time_lost_in_pit ?? impact.timeLostInPit;
-            const timeGainedFreshTires = impact.time_gained_fresh_tires ?? impact.timeGainedFreshTires;
-            const netTimeImpact = impact.net_time_impact ?? impact.netTimeImpact;
+            const timeLostInPit = impact.time_lost_in_pit ?? impact.timeLostInPit ?? 22.0;
+            const timeGainedFreshTires = impact.time_gained_fresh_tires ?? impact.timeGainedFreshTires ?? 2.5;
+            const netTimeImpact = impact.net_time_impact ?? impact.netTimeImpact ?? (timeLostInPit - timeGainedFreshTires);
             const aheadOf = impact.ahead_of ?? impact.aheadOf ?? [];
             const behindOf = impact.behind_of ?? impact.behindOf ?? [];
 
-            // Determine change class and symbol
+            // Determine change class and badge text
             let changeClass = 'neutral';
-            let changeSymbol = '◆';
-            let changeText = '0';
+            let badgeText = '0';
             
             if (positionChange > 0) {
                 changeClass = 'gained';
-                changeSymbol = '▲';
-                changeText = `+${positionChange}`;
+                badgeText = `▲+${positionChange}`;
             } else if (positionChange < 0) {
                 changeClass = 'lost';
-                changeSymbol = '▼';
-                changeText = `${positionChange}`;
+                badgeText = `▼${positionChange}`;
             }
 
-            // Build nearby drivers HTML
-            let behindHtml = '';
-            if (behindOf.length > 0) {
-                behindOf.forEach(driver => {
+            // Build compact driver list - top 2 only, just names and gaps
+            const buildDriverList = (drivers, type) => {
+                if (drivers.length === 0) {
+                    return '<span class="nearby-empty">Clear track</span>';
+                }
+                return drivers.slice(0, 2).map((driver, idx) => {
                     const driverName = driver.driver_name ?? driver.driverName;
+                    // Extract last name only for compactness
+                    const lastName = driverName.split(' ').pop();
                     const gap = driver.gap;
-                    behindHtml += `
-                        <div class="nearby-driver">
-                            <span class="nearby-driver-name">P${driver.position} ${driverName}</span>
-                            <span class="nearby-driver-gap behind">+${gap.toFixed(1)}s</span>
-                        </div>
-                    `;
-                });
-            } else {
-                behindHtml = '<div style="color: var(--text-muted); font-size: 0.85rem;">No drivers nearby</div>';
-            }
-
-            let aheadHtml = '';
-            if (aheadOf.length > 0) {
-                aheadOf.forEach(driver => {
-                    const driverName = driver.driver_name ?? driver.driverName;
-                    const gap = driver.gap;
-                    aheadHtml += `
-                        <div class="nearby-driver">
-                            <span class="nearby-driver-name">P${driver.position} ${driverName}</span>
-                            <span class="nearby-driver-gap ahead">-${gap.toFixed(1)}s</span>
-                        </div>
-                    `;
-                });
-            } else {
-                aheadHtml = '<div style="color: var(--text-muted); font-size: 0.85rem;">No drivers nearby</div>';
-            }
+                    const gapText = type === 'behind' ? `+${Math.round(gap)}s` : `-${Math.round(gap)}s`;
+                    const separator = idx < Math.min(drivers.length, 2) - 1 ? ', ' : '';
+                    return `<span class="nearby-driver-name">${lastName}</span> <span class="nearby-driver-gap">(${gapText})</span>${separator}`;
+                }).join('');
+            };
 
             container.innerHTML = `
                 <div class="strategy-impact-card">
                     <div class="strategy-impact-header">
-                        <h4>📊 Strategy Impact</h4>
+                        <h4>Strategy Impact</h4>
                     </div>
-                    <div class="strategy-impact-body">
-                        <div class="position-display">
-                            <div class="position-box">
-                                <div class="position-label">Current</div>
-                                <div class="position-number">${currentPosition}</div>
-                            </div>
-                            
-                            <div class="position-arrow">→</div>
-                            
-                            <div class="position-box">
-                                <div class="position-label">After Pit</div>
-                                <div class="position-number">${projectedPosition}</div>
-                            </div>
-                            
-                            <div class="position-change-box ${changeClass}">
-                                <div class="position-change-value ${changeClass}">${changeSymbol}${Math.abs(positionChange)}</div>
-                            </div>
+                    
+                    <div class="position-hero">
+                        <div class="position-block">
+                            <div class="position-number"><span>P</span>${currentPosition}</div>
+                            <div class="position-label">Current</div>
                         </div>
-
-                        <div class="nearby-drivers">
-                            <div class="nearby-section">
-                                <div class="nearby-section-title behind">
-                                    <span>🔴</span> Coming out behind
-                                </div>
-                                ${behindHtml}
-                            </div>
-                            <div class="nearby-section">
-                                <div class="nearby-section-title ahead">
-                                    <span>🟢</span> Coming out ahead of
-                                </div>
-                                ${aheadHtml}
-                            </div>
+                        
+                        <div class="position-arrow-container">
+                            <span class="position-arrow">→</span>
                         </div>
+                        
+                        <div class="position-block">
+                            <div class="position-number"><span>P</span>${projectedPosition}</div>
+                            <div class="position-label">After Pit</div>
+                        </div>
+                        
+                        <div class="position-change-badge ${changeClass}">${badgeText}</div>
+                    </div>
 
-                        <div class="time-breakdown">
-                            <div class="time-item">
-                                <div class="time-item-label">Pit Stop Loss</div>
-                                <div class="time-item-value negative">-${timeLostInPit.toFixed(1)}s</div>
-                            </div>
-                            <div class="time-item">
-                                <div class="time-item-label">Fresh Tire Gain</div>
-                                <div class="time-item-value positive">+${timeGainedFreshTires.toFixed(1)}s</div>
-                            </div>
-                            <div class="time-item">
-                                <div class="time-item-label">Net Impact</div>
-                                <div class="time-item-value ${netTimeImpact > 0 ? 'negative' : 'positive'}">${netTimeImpact > 0 ? '-' : '+'}${Math.abs(netTimeImpact).toFixed(1)}s</div>
-                            </div>
+                    <div class="time-stats-row">
+                        <div class="time-stat">
+                            <div class="time-stat-label">Pit Loss</div>
+                            <div class="time-stat-value negative">-${timeLostInPit.toFixed(1)}s</div>
+                        </div>
+                        <div class="time-stat">
+                            <div class="time-stat-label">Tire Gain</div>
+                            <div class="time-stat-value positive">+${timeGainedFreshTires.toFixed(1)}s</div>
+                        </div>
+                        <div class="time-stat">
+                            <div class="time-stat-label">Net Impact</div>
+                            <div class="time-stat-value negative">-${netTimeImpact.toFixed(1)}s</div>
+                        </div>
+                    </div>
+
+                    <div class="nearby-row">
+                        <div class="nearby-line">
+                            <span class="nearby-icon behind">●</span>
+                            <span class="nearby-label">Behind:</span>
+                            <span class="nearby-drivers-list">${buildDriverList(behindOf, 'behind')}</span>
+                        </div>
+                        <div class="nearby-line">
+                            <span class="nearby-icon ahead">●</span>
+                            <span class="nearby-label">Ahead:</span>
+                            <span class="nearby-drivers-list">${buildDriverList(aheadOf, 'ahead')}</span>
                         </div>
                     </div>
                 </div>
