@@ -55,3 +55,85 @@ public class PitStopPrediction
     [JsonPropertyName("laps_analyzed")]
     public int LapsAnalyzed { get; set; }
 }
+
+// Strategy Impact Models
+public class DriverLapData
+{
+    [JsonPropertyName("driver_number")]
+    public int DriverNumber { get; set; }
+
+    [JsonPropertyName("driver_name")]
+    public string DriverName { get; set; } = string.Empty;
+
+    [JsonPropertyName("total_time")]
+    public double TotalTime { get; set; }
+
+    [JsonPropertyName("avg_lap_time")]
+    public double AvgLapTime { get; set; }
+
+    [JsonPropertyName("laps_completed")]
+    public int LapsCompleted { get; set; }
+}
+
+public class StrategyImpactRequest
+{
+    [JsonPropertyName("target_driver_number")]
+    public int TargetDriverNumber { get; set; }
+
+    [JsonPropertyName("pit_lap")]
+    public int PitLap { get; set; }
+
+    [JsonPropertyName("drivers_data")]
+    public List<DriverLapData> DriversData { get; set; } = new();
+
+    [JsonPropertyName("pit_stop_time")]
+    public double PitStopTime { get; set; } = 22.0;
+
+    [JsonPropertyName("fresh_tire_advantage")]
+    public double FreshTireAdvantage { get; set; } = 0.5;
+
+    [JsonPropertyName("fresh_tire_laps")]
+    public int FreshTireLaps { get; set; } = 5;
+}
+
+public class NearbyDriver
+{
+    [JsonPropertyName("driver_number")]
+    public int DriverNumber { get; set; }
+
+    [JsonPropertyName("driver_name")]
+    public string DriverName { get; set; } = string.Empty;
+
+    [JsonPropertyName("gap")]
+    public double Gap { get; set; }
+
+    [JsonPropertyName("position")]
+    public int Position { get; set; }
+}
+
+public class StrategyImpactResponse
+{
+    [JsonPropertyName("current_position")]
+    public int CurrentPosition { get; set; }
+
+    [JsonPropertyName("projected_position")]
+    public int ProjectedPosition { get; set; }
+
+    [JsonPropertyName("position_change")]
+    public int PositionChange { get; set; }
+
+    [JsonPropertyName("time_lost_in_pit")]
+    public double TimeLostInPit { get; set; }
+
+    [JsonPropertyName("time_gained_fresh_tires")]
+    public double TimeGainedFreshTires { get; set; }
+
+    [JsonPropertyName("net_time_impact")]
+    public double NetTimeImpact { get; set; }
+
+    [JsonPropertyName("ahead_of")]
+    public List<NearbyDriver> AheadOf { get; set; } = new();
+
+    [JsonPropertyName("behind_of")]
+    public List<NearbyDriver> BehindOf { get; set; } = new();
+}

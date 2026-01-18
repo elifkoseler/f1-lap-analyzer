@@ -98,4 +98,20 @@ public class PitStopPredictionService : IPitStopPredictionService
 
         return $"High tire degradation ({prediction.DegradationRate:F3}s/lap) - consider pitting before lap {prediction.OptimalPitLap}";
     }
+
+    public async Task<StrategyImpactResponse> GetStrategyImpactAsync(StrategyImpactRequest request)
+    {
+        var url = _mlServiceUrl.TrimEnd('/') + "/predict/strategy-impact";
+        var response = await _httpClient.PostAsJsonAsync(url, request);
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<StrategyImpactResponse>();
+
+        if (result == null)
+        {
+            throw new InvalidOperationException("Failed to deserialize strategy impact response");
+        }
+
+        return result;
+    }
 }
